@@ -7,29 +7,47 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     html, body, #map { height: 100%; margin: 0; }
+    .layer-switch {
+      position: absolute; right: 12px; top: 12px; z-index: 1000;
+      background: #fff; border: 1px solid #ccc; padding: 6px 8px; border-radius: 6px;
+      font-family: system-ui, sans-serif; font-size: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+    select { border: 1px solid #ccc; border-radius: 4px; padding: 2px 6px; }
   </style>
 </head>
 <body>
   <div id="map"></div>
+
+  <div class="layer-switch">
+    Version:
+    <select id="variant">
+      <option value="./jeju_tiles_b40_c-20/{z}/{x}/{y}.png" selected>b40_c-20</option>
+      <option value="./jeju_tiles_150/{z}/{x}/{y}.png">150%</option>
+    </select>
+  </div>
+
   <script>
-    // Initialize map
     const map = L.map('map', {
-      center: [0, 0],
-      zoom: 2,
+      crs: L.CRS.Simple,
       minZoom: 0,
       maxZoom: 6,
-      crs: L.CRS.Simple
+      center: [0,0],
+      zoom: 2
     });
 
-    // Use your tile folder (example: b40_c-20)
-    const tiles = L.tileLayer('./jeju_tiles_b40_c-20/{z}/{x}/{y}.png', {
-      tileSize: 256,
-      minZoom: 0,
-      maxZoom: 6,
-      noWrap: true
-    });
+    // Start layer (b40_c-20)
+    let layer = L.tileLayer('./jeju_tiles_b40_c-20/{z}/{x}/{y}.png', {
+      tileSize: 256, minZoom: 0, maxZoom: 6, noWrap: true
+    }).addTo(map);
 
-    tiles.addTo(map);
+    // Switcher
+    document.getElementById('variant').addEventListener('change', (e) => {
+      const url = e.target.value;
+      map.removeLayer(layer);
+      layer = L.tileLayer(url, { tileSize: 256, minZoom: 0, maxZoom: 6, noWrap: true });
+      layer.addTo(map);
+    });
   </script>
 </body>
 </html>
